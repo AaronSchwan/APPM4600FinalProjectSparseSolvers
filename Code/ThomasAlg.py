@@ -34,9 +34,8 @@ def thomas_alg_cpu(M,r):
 
     #Backward subsitutions for x vector
     for i in reversed(range(n-1)):
-        print(i)
-        print(M[i-1,i],alpha[i-1],beta[i-1],x[i])
-        x[i-1] = beta[i-1]-M[i-1,i]*x[i]/alpha[i-1]
+        print(M[i,i+1],alpha[i],beta[i],x[i+1])
+        x[i] = beta[i]-M[i,i+1]*x[i+1]/alpha[i]
 
     #returning x vector
     return x
@@ -136,9 +135,10 @@ if __name__ == "__main__":
     r = np.array([8,18,0.5,-1.75])
 
     x1 = thomas_alg_cpu(M1,r)
+    print(x1.dot(M1))
     #x2 = thomas_alg_cpu(M2,r)
-    x3 = thomas_alg_decimal(M1,r)
-    print(x1,x3)
+    #x3 = thomas_alg_decimal(M1,r)
+    #print(x1,x3)
     #if np.allclose(x1.dot(M1),r) and bool(~np.allclose(x2.dot(M2),r)):
     #    print("Passed Fully Tridiagonal Solution")
     #    
