@@ -142,14 +142,14 @@ if __name__ == "__main__":
     x3 = thomas_alg_decimal(M1,r)
     print("\n\n")
     print(x1,x3)
-    #if np.allclose(x1.dot(M1),r) and bool(~np.allclose(x2.dot(M2),r)):
-    #    print("Passed Fully Tridiagonal Solution")
-    #    
-    #else:
-    #    print("Failed Fully Tridiagonal Test")
+    if np.allclose(x1.dot(M1),r) and bool(~np.allclose(x2.dot(M2),r)):
+        print("Passed Fully Tridiagonal Solution")
+        
+    else:
+        print("Failed Fully Tridiagonal Test")
 
 
-    #x3 = thomas_alg_cpu_mem(M1,r)
-    #print(x1,x3)
+    x3 = thomas_alg_cpu_mem(M1,r)
+    print(x1,x3)
 
 
