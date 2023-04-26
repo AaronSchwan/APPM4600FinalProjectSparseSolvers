@@ -28,13 +28,11 @@ def thomas_alg_cpu(M,r):
     for i in range(1,n):
         alpha[i] = M[i,i]-M[i-1,i]*M[i,i-1]/alpha[i-1]
         beta[i] = (r[i]-M[i-1,i]*beta[i-1])/alpha[i]
-    print("normal",alpha,beta)
     #Priming x solutions
     x[n-1] = beta[n-1]
 
     #Backward subsitutions for x vector
     for i in reversed(range(n-1)):
-        print(M[i,i+1],alpha[i],beta[i],x[i+1])
         x[i] = beta[i]-M[i,i+1]*x[i+1]/alpha[i]
 
     #returning x vector
@@ -74,16 +72,19 @@ def thomas_alg_cpu_mem(M,r):
     return x
         
 
-def thomas_alg_decimal(M,r):
+def thomas_alg_decimal(M,r,points = 50):
     """
-    Standard thomas algorithim implemented with dsecimal library 
-    to increase the precision of the calculation. 
+    Standard thomas algorithim implemented with decimal library 
+    to increase the precision of the calculation.
+
+    It is strictly for precision and will be slow and memory intensive
+    this is to hopefully check for when precision may be an issue 
 
     there have been no checks built into this
     """
     #finding the nxn size of matrix
     n = len(r)
-    getcontext().prec = 50
+    getcontext().prec = points
 
     #allocating memory to matrices
     alpha = []
@@ -97,29 +98,30 @@ def thomas_alg_decimal(M,r):
     for i in range(1,n):
         alpha.append(Decimal(M[i,i])-Decimal(M[i-1,i])*Decimal(M[i,i-1])/alpha[i-1])
         beta.append((Decimal(r[i])-Decimal(M[i-1,i])*beta[i-1])/alpha[i])
-    print("Decimal",alpha,beta)
 
+    #You can not reverse a decimal list without canceling all values
+    #this simple loop does that
     alpha2 = []
     beta2 = []
     for i in range(n):
         alpha2.append(alpha[n-1-i])
         beta2.append(beta[n-1-i])
 
-    print(alpha2,beta2)
 
     #Priming x solutions
     x.append(beta[n-1])
 
     #Backward subsitutions for x vector
     for i in range(1,n):
-        print(M[n-i-2,n-i-1],alpha2[i-1],beta2[i-1],x[i-1])
-        x.append(beta2[i]-Decimal(M[n-1-i-1,n-1-i])*x[i-1]/alpha2[i])
+        x.append(beta2[i]-Decimal(M[n-i-1,n-i])*x[i-1]/alpha2[i])
     
-    x_sol = []
+    #We now reverse the x data as well as convert to a floating point number
+    x_sol = np.zeros(n)
     
     for i in range(n):
-        x_sol.append(x[n-1-i])
+        x_sol[i] = float(x[n-1-i])
     #returning x vector
+    print(x_sol)
     return x_sol
 
 
@@ -137,8 +139,9 @@ if __name__ == "__main__":
     x1 = thomas_alg_cpu(M1,r)
     print(x1.dot(M1))
     #x2 = thomas_alg_cpu(M2,r)
-    #x3 = thomas_alg_decimal(M1,r)
-    #print(x1,x3)
+    x3 = thomas_alg_decimal(M1,r)
+    print("\n\n")
+    print(x1,x3)
     #if np.allclose(x1.dot(M1),r) and bool(~np.allclose(x2.dot(M2),r)):
     #    print("Passed Fully Tridiagonal Solution")
     #    
