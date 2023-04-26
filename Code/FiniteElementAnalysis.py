@@ -20,23 +20,11 @@ def Vx(z):
     return 50*(1-z**2)
 
 #Numerical Solutions
-M_DeltaZ_0_2 = np.array([[2,-1,0,0,0,0,0,0,0,0],
-                        [-1,2,-1,0,0,0,0,0,0,0],
-                        [0,-1,2,-1,0,0,0,0,0,0],
-                        [0,0,-1,2,-1,0,0,0,0,0],
-                        [0,0,0,-1,2,-1,0,0,0,0],
-                        [0,0,0,0,-1,2,-1,0,0,0],
-                        [0,0,0,0,0,-1,2,-1,0,0],
-                        [0,0,0,0,0,0,-1,2,-1,0],
-                        [0,0,0,0,0,0,0,-1,2,-1],
-                        [0,0,0,0,0,0,0,0,-1,2]])
+M_DeltaZ_0_2,r_DeltaZ_0_2 = mf.generate_stiffness_matrix(10)
+x_DeltaZ_0_2 = ta.thomas_alg_decimal(M_DeltaZ_0_2,r_DeltaZ_0_2,50)
 
-r_DeltaZ_0_2 = np.array([4,4,4,4,4,4,4,4,4,4])
-
-x_DeltaZ_0_2 = ta.thomas_alg_decimal(M_DeltaZ_0_2.astype(float),r_DeltaZ_0_2.astype(float),100)
-
-x = np.linalg.solve(M_DeltaZ_0_2,r_DeltaZ_0_2)
-x_act = [20,36,48,56,60,60,56,48,36,20]
+M_DeltaZ_0_1,r_DeltaZ_0_1 = mf.generate_stiffness_matrix(20)
+x_DeltaZ_0_1 = ta.thomas_alg_decimal(M_DeltaZ_0_1,r_DeltaZ_0_1,50)
 
 
 #Analytical Graph
@@ -45,9 +33,29 @@ plt.plot(z_space,Vx(z_space),label="Analytical Solution")
 
 #Numerical Solutions
 plt.scatter(np.linspace(-1,1,len(x_DeltaZ_0_2)),x_DeltaZ_0_2,label="Numerical Delta Z = 0.2")
+plt.scatter(np.linspace(-1,1,len(x_DeltaZ_0_1)),x_DeltaZ_0_1,label="Numerical Delta Z = 0.1")
 
 #Formatting
 plt.legend()
 plt.xlabel("Z(mm)")
 plt.ylabel("Vx(mm/s)")
+plt.show()
+
+#Creating an error plot 
+center_analytical_val = Vx(0)
+
+central_errors = []
+n_vals = 1000
+for i in range(10,n_vals,2):
+    M,r = mf.generate_stiffness_matrix(i)
+    x = ta.thomas_alg_decimal(M,r,100)
+    
+    #finding the error for even only
+    #function approaches from above no absolutes needed
+    central_errors.append(x[int(i/2)]-center_analytical_val)
+
+
+plt.semilogy(range(10,n_vals,2),central_errors)
+plt.xlabel("Divisions of Pipe")
+plt.ylabel("Log(error at center)")
 plt.show()

@@ -121,7 +121,6 @@ def thomas_alg_decimal(M,r,points = 50):
     for i in range(n):
         x_sol[i] = float(x[n-1-i])
     #returning x vector
-    print(x_sol)
     return x_sol
 
 
@@ -138,7 +137,7 @@ if __name__ == "__main__":
 
     x1 = thomas_alg_cpu(M1,r)
     print(x1.dot(M1))
-    #x2 = thomas_alg_cpu(M2,r)
+    x2 = thomas_alg_cpu(M2,r)
     x3 = thomas_alg_decimal(M1,r)
     print("\n\n")
     print(x1,x3)
