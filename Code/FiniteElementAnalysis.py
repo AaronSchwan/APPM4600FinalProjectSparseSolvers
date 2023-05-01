@@ -87,6 +87,40 @@ def thomas_for_fea(n,eta = 1*pow(10,-5),dpdx = -0.001):
     #scale by r0 
     return x*r0
 
-print(thomas_for_fea(10))
+
+def thomas_fea_most_simplified(half_n,eta = 1*pow(10,-5),dpdx = -0.001):
+
+    r0 = -dpdx/eta
+
+    n = int(2*half_n)
+    
+    dx = 2/n
+    min_x = -1+1/n
+
+
+    x = np.arange(min_x,-min_x+1/n,dx)
+    half_vx = np.arange(1,half_n+1)
+    
+    half_vx = (n-half_vx+1)*half_vx/2
+    
+    coeff = 4/pow(n,2)*r0
+
+    half_vx = half_vx*coeff
+
+    vx = np.zeros(n)
+    vx[0:half_n]=half_vx
+    vx[half_n:n]=np.flip(half_vx)
+
+
+
+
+    
+        
+
+    return vx
+
+
+    
+print(thomas_fea_most_simplified(10000))
 
     
