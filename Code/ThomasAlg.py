@@ -35,6 +35,7 @@ def thomas_alg_cpu(M,r):
     for i in reversed(range(n-1)):
         x[i] = beta[i]-M[i,i+1]*x[i+1]/alpha[i]
 
+        print(beta[i],-M[i,i+1],alpha[i],x[i],i)
     #returning x vector
     return x
 
