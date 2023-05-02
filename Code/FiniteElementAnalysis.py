@@ -7,6 +7,7 @@ ONE-DIMENSIONAL EXAMPLE: FLOW IN INFINITESIMALLY EXTENDED CHANNELS
 #Imports
 import numpy as np
 import matplotlib.pyplot as plt
+from numba import njit
 
 #Local File Imports
 import Matrice_Finder as mf
