@@ -126,14 +126,10 @@ def thomas_cpu(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001)-> np.ndarra
 ###########################################################################
 #Thomas Algorithim for GPU
 ###########################################################################
-@numba.jit()
-def beta(i:int):
-    return (i+1)/2
-@numba.jit()
-def alpha(i:int):
-    return (i+2)/(i+1)
+
+
     
-@numba.jit()
+@numba.njit
 def thomas_gpu(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001)-> np.ndarray| np.ndarray:
     """
     vx,x = thomas_gpu(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001)
@@ -154,6 +150,11 @@ def thomas_gpu(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001)-> np.ndarra
     * vx = velocity at each x (1 by n numpy array)
     * x = x-axis spacings (1 by n numpy array)
     """
+    def beta(i:int):
+        return (i+1)/2
+
+    def alpha(i:int):
+        return (i+2)/(i+1)
 
     #Sizing
     n = 2*half_n
@@ -196,6 +197,14 @@ if __name__ == "__main__":
     start = time.time()
     vx,x = thomas_cpu(half_n)
     print("CPU",len(vx),time.time()-start)
+
+    start = time.time()
+    vx,x = thomas_gpu(half_n)
+    print("GPU",len(vx),time.time()-start)
+
+    start = time.time()
+    vx,x = thomas_gpu(half_n)
+    print("GPU",len(vx),time.time()-start)
 
     start = time.time()
     vx,x = thomas_gpu(half_n)
