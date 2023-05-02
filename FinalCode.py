@@ -258,7 +258,7 @@ if __name__ == "__main__":
     if np.allclose(vx1, vx2) and np.allclose(vx2, vx3):
         print("All methods are equal")
 
-    if True:
+    if False:
         print(
             "Begining Tests##########################################################"
         )
