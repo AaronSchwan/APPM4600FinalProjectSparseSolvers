@@ -33,7 +33,6 @@ def generate_stiffness_matrix(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.0
     * r = associated solution for this 
     * x = x-axis spacings
 
-
     # Conditions 
     * No Slip boundary Condition
     * Equation 32.42 32.47 32.37 CHAPTER 32 Finite Element Method
@@ -70,16 +69,32 @@ def generate_stiffness_matrix(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.0
 #Thomas Algorithim for CPU
 ###########################################################################
 
-"""
-Index solutions for alpha and beta so matrix creation is no longer necessary.
-"""
-def beta(i:int):
-    return (i+1)/2
-def alpha(i:int):
-    return (i+2)/(i+1)
+def thomas_cpu(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001):
+    """
+    vx,x = generate_stiffness_matrix(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001)
+
+    # Explanation
+    This solves for finite flow in an infintessimal channel using FEA-Gerlikin and 
+    the thomas algorithim. It should be noted due to the no slip condition the edge values 
+    are set to 0 and therefore the matrix does not include endpoints.
+
+    # Inputs 
+    * half_n = half the number of elements desired (half to gaurentee an even number)
+    * eta = coefficient of viscosity (SI units)
+    * F = force aplied (SI units)
+
+    # Outputs
+    * vx = velocity at each x 
+    * x = x-axis spacings
+    """
+    #Index solutions for alpha and beta so matrix creation is no longer necessary.
+    #Included as subfunctions so the GPU optimization remains unaffected
+    def beta(i:int):
+        return (i+1)/2
+    def alpha(i:int):
+        return (i+2)/(i+1)
 
 
-def thomas_cpu(half_n,eta = 1*pow(10,-5),F = -0.001):
     #Sizing
     n = 2*half_n
     #Calculating dz step size
@@ -91,19 +106,20 @@ def thomas_cpu(half_n,eta = 1*pow(10,-5),F = -0.001):
     vx = np.zeros(n)#velocity
     x = np.arange(-1+dz/2,1,dz)#position
 
-    x[n-1] = (n)/2
+    #creating vx initial entry
+    vx[n-1] = (n)/2
 
+    #Back subsitution of vx
+    #Due to symmetry only half is solved 
     for i in reversed(range(int(n/2),n-1)):
-        x[i] = beta(i)+x[i+1]/alpha(i)
+        vx[i] = beta(i)+vx[i+1]/alpha(i)
 
-    #mirroring
-    vx = np.zeros(n)
-    vx[0:half_n]=half_vx
-    vx[half_n:n]=np.flip(half_vx)
-
-    #no need to reverse due to symmetry
-    #scale by r0 
-    return x*r0
+    #mirroring for full solution
+    vx[half_n:n]=np.flip(vx[0:half_n])
+    
+    #Scaled after because this is more efficient
+    #Returning vx and x
+    return vx*r0,x
 
 
 
