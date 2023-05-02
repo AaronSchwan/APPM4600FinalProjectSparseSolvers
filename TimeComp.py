@@ -65,6 +65,31 @@ def generate_stiffness_matrix(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.0
    #Returns
     return M,r,x
 
+def gauss_elimination(A,b):
+    n = len(A)
+    M = np.zeros([n,n+1])
+    x = np.zeros(n)
+    #augment matrix
+    for i in range(n):
+        for j in range(n):
+            M[i,j] = A[i,j]
+        M[i,n] = b[i]
+
+    #Fwd elim
+    for i in range(n-1):
+        for j in range(i+1,n):
+            val = M[j,i]/M[i,i]
+            M[j,:] = M[j,:]-M[i,:]*val
+
+    #Bck elimination
+    for i in reversed(range(n)):
+        temp = 0
+        for j in range(n):
+            temp = temp + x[j]*M[i,j]
+        x[i] = (M[i,n]-temp)/M[i,i]
+
+
+    return x
 
 ###########################################################################
 #Thomas Algorithim for CPU
@@ -190,22 +215,29 @@ def thomas_gpu(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001)-> np.ndarra
     return vx*r0,x
 
 if __name__ == "__main__":
-    half_n = 500000
-    #M,r,x = generate_stiffness_matrix(half_n)
-    #print(M,r,x)
+    half_n = 500
 
+    ################################################################################
+    #Gauss Row Elimination
+    ################################################################################
+    M,r,x = generate_stiffness_matrix(half_n)
+    start = time.time()
+    vx = gauss_elimination(M,r)
+    print("\nGauss",time.time()-start)
+
+    ################################################################################
+    #CPU Thomas
+    ################################################################################
     start = time.time()
     vx,x = thomas_cpu(half_n)
-    print("CPU",len(vx),time.time()-start)
+    print("\nCPU",time.time()-start)
+
+    ################################################################################
+    #GPU Thomas
+    ################################################################################
+    #calling this will compile the function then the time should be representitive
+    thomas_gpu(half_n)
 
     start = time.time()
     vx,x = thomas_gpu(half_n)
-    print("GPU",len(vx),time.time()-start)
-
-    start = time.time()
-    vx,x = thomas_gpu(half_n)
-    print("GPU",len(vx),time.time()-start)
-
-    start = time.time()
-    vx,x = thomas_gpu(half_n)
-    print("GPU",len(vx),time.time()-start)
+    print("\nGPU",time.time()-start)
