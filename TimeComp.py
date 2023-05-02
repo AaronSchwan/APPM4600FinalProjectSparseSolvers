@@ -8,6 +8,7 @@ This is just a simple script to run the commands several times and save the time
 
 #Standard Imports 
 import numpy as np
+import numba 
 import time
 
 ###########################################################################
@@ -115,16 +116,87 @@ def thomas_cpu(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001)-> np.ndarra
         vx[i] = beta(i)+vx[i+1]/alpha(i)
 
     #mirroring for full solution
-    vx[half_n:n]=np.flip(vx[0:half_n])
+    vx[0:half_n]=np.flip(vx[half_n:n])
     
     #Scaled after because this is more efficient
     #Returning vx and x
     return vx*r0,x
 
 
+###########################################################################
+#Thomas Algorithim for GPU
+###########################################################################
+@numba.jit()
+def beta(i:int):
+    return (i+1)/2
+@numba.jit()
+def alpha(i:int):
+    return (i+2)/(i+1)
+    
+@numba.jit()
+def thomas_gpu(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001)-> np.ndarray| np.ndarray:
+    """
+    vx,x = thomas_gpu(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001)
 
+    # Explanation
+    This solves for finite flow in an infintessimal channel using FEA-Gerlikin and 
+    the thomas algorithim. It should be noted due to the no slip condition the edge values 
+    are set to 0 and therefore the matrix does not include endpoints. 
+
+    This is not as memory efficent as the cpu version but is focused on speed
+
+    # Inputs 
+    * half_n = half the number of elements desired (half to gaurentee an even number)
+    * eta = coefficient of viscosity (SI units)
+    * F = force aplied (SI units)
+
+    # Outputs
+    * vx = velocity at each x (1 by n numpy array)
+    * x = x-axis spacings (1 by n numpy array)
+    """
+
+    #Sizing
+    n = 2*half_n
+    #Calculating dz step size
+    dz = 1/half_n
+    #scaling factor
+    r0 = (-F/eta*pow(dz,2))
+
+    #Allocating Memory to matrices creating r and x
+    vx = np.zeros(n)#velocity
+    x = np.arange(-1+dz/2,1,dz)#position
+
+    #reversed list
+    rev_n = np.flip(np.arange(half_n,n-1))
+    #alpha and betas calculations 
+    beta_vals_half = beta(rev_n)
+    alpha_vals_half = alpha(rev_n)
+
+
+
+    #creating vx initial entry
+    vx[n-1] = half_n
+
+    #Back subsitution of vx split into parts for optimization
+    for i in rev_n:
+        vx[i] = beta_vals_half[n-i-2]+vx[i+1]/alpha_vals_half[n-i-2]
+    
+    #mirroring for full solution
+    vx[0:half_n]=np.flip(vx[half_n:n])
+    
+    #Scaled after because this is more efficient
+    #Returning vx and x
+    return vx*r0,x
 
 if __name__ == "__main__":
-    half_n = 5
-    M,r,x = generate_stiffness_matrix(half_n)
-    print(M,r,x)
+    half_n = 500000
+    #M,r,x = generate_stiffness_matrix(half_n)
+    #print(M,r,x)
+
+    start = time.time()
+    vx,x = thomas_cpu(half_n)
+    print("CPU",len(vx),time.time()-start)
+
+    start = time.time()
+    vx,x = thomas_gpu(half_n)
+    print("GPU",len(vx),time.time()-start)
