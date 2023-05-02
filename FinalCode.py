@@ -9,7 +9,10 @@ This is just a simple script to run the commands several times and save the time
 #Standard Imports 
 import numpy as np
 import numba 
+
+import tracemalloc
 import time
+import sys
 
 ###########################################################################
 #Gauss row elimination with pivoting
@@ -222,15 +225,15 @@ if __name__ == "__main__":
     ################################################################################
     M,r,x = generate_stiffness_matrix(half_n)
     start = time.time()
-    vx = gauss_elimination(M,r)
-    print("\nGauss",time.time()-start)
+    vx1 = gauss_elimination(M,r)
+    print("Gauss",time.time()-start)
 
     ################################################################################
     #CPU Thomas
     ################################################################################
     start = time.time()
-    vx,x = thomas_cpu(half_n)
-    print("\nCPU",time.time()-start)
+    vx2,x = thomas_cpu(half_n)
+    print("CPU",time.time()-start)
 
     ################################################################################
     #GPU Thomas
@@ -239,5 +242,128 @@ if __name__ == "__main__":
     thomas_gpu(half_n)
 
     start = time.time()
-    vx,x = thomas_gpu(half_n)
-    print("\nGPU",time.time()-start)
+    vx3,x = thomas_gpu(half_n)
+    print("GPU",time.time()-start)
+
+    #Verifying all methods are equivelent
+    #Has to be is close becasue gauss elimination acrues more errors
+    if np.allclose(vx1,vx2) and np.allclose(vx2,vx3):
+        print("All methods are equal")
+
+    if True:
+        print("Begining Tests##########################################################")
+        time_test_n = 5#number of tests per n for an average
+        half_n_range = np.arange(10,pow(10,2))
+ 
+        ################################################################################
+        #Gauss Running time and memory tests
+        ################################################################################
+
+        print("Begining Gauss Row Elimination Time Tests")
+        gauss_times = np.zeros([len(half_n_range),time_test_n])
+
+        for ind_n,half_n in enumerate(half_n_range):
+            for i in range(time_test_n):
+                start = time.time()
+                M,r,x = generate_stiffness_matrix(half_n)
+                vx1 = gauss_elimination(M,r)
+                end = time.time()
+                gauss_times[ind_n,i] = start-end
+            
+            sys.stdout.write("\r"+str(ind_n)+" of "+str(len(half_n_range)-1))
+
+        np.savetxt("GaussTimes.csv", gauss_times, delimiter=",")
+        del gauss_times
+
+        print("\nBegining Gauss Row Elimination Memory Tests")
+        gauss_memory = np.zeros([len(half_n_range),time_test_n])
+
+        for ind_n,half_n in enumerate(half_n_range):
+            for i in range(time_test_n):
+                tracemalloc.start()
+                M,r,x = generate_stiffness_matrix(half_n)
+                vx1 = gauss_elimination(M,r)
+                mem = tracemalloc.get_traced_memory()
+                gauss_memory[ind_n,i] = mem[1]-mem[0]
+                tracemalloc.stop()
+                sys.stdout.write("\r"+str(ind_n)+" of "+str(len(half_n_range)-1))
+
+        np.savetxt("GaussMemory.csv", gauss_memory, delimiter=",")
+        del gauss_memory
+
+        
+        
+        ################################################################################
+        #CPU Running time and memory tests
+        ################################################################################
+
+        print("Begining Thomas CPU Time Tests")
+        cpu_times = np.zeros([len(half_n_range),time_test_n])
+
+
+        for ind_n,half_n in enumerate(half_n_range):
+            for i in range(time_test_n):
+                start = time.time()
+                x,vx = thomas_cpu(half_n)
+                end = time.time()
+                cpu_times[ind_n,i] = start-end
+                sys.stdout.write("\r"+str(ind_n)+" of "+str(len(half_n_range)-1))
+
+        np.savetxt("ThomasCPUTimes.csv", cpu_times, delimiter=",")
+        del cpu_times
+
+        print("\nBegining Thomas CPU Memory Tests")
+        cpu_memory = np.zeros([len(half_n_range),time_test_n])
+
+
+        for ind_n,half_n in enumerate(half_n_range):
+            for i in range(time_test_n):
+                tracemalloc.start()
+                x,vx = thomas_cpu(half_n)
+                mem = tracemalloc.get_traced_memory()
+                cpu_memory[ind_n,i] = mem[1]-mem[0]
+                tracemalloc.stop()
+                sys.stdout.write("\r"+str(ind_n)+" of "+str(len(half_n_range)-1))
+
+        np.savetxt("ThomasCPUMemory.csv", cpu_memory, delimiter=",")
+        del cpu_memory
+        
+        ################################################################################
+        #CPU Running time and memory tests
+        ################################################################################
+
+        print("Begining Thomas GPU Time Tests")
+        gpu_times = np.zeros([len(half_n_range),time_test_n])
+
+
+        for ind_n,half_n in enumerate(half_n_range):
+            for i in range(time_test_n):
+                start = time.time()
+                x,vx = thomas_gpu(half_n)
+                end = time.time()
+                gpu_times[ind_n,i] = start-end
+                sys.stdout.write("\r"+str(ind_n)+" of "+str(len(half_n_range)-1))
+
+        np.savetxt("ThomasGPUTimes.csv", gpu_times, delimiter=",")
+        del gpu_times
+
+        print("\nBegining Thomas GPU Memory Tests")
+        gpu_memory = np.zeros([len(half_n_range),time_test_n])
+
+
+        for ind_n,half_n in enumerate(half_n_range):
+            for i in range(time_test_n):
+                tracemalloc.start()
+                x,vx = thomas_gpu(half_n)
+                mem = tracemalloc.get_traced_memory()
+                gpu_memory[ind_n,i] = mem[1]-mem[0]
+                tracemalloc.stop()
+                sys.stdout.write("\r"+str(ind_n)+" of "+str(len(half_n_range)-1))
+
+        np.savetxt("ThomasGPUMemory.csv", gpu_memory, delimiter=",")
+        del gpu_memory
+
+
+       
+
+        print("\ndone")
