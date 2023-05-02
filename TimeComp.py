@@ -13,7 +13,7 @@ import time
 ###########################################################################
 #Gauss row elimination with pivoting
 ###########################################################################
-def generate_stiffness_matrix(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001):
+def generate_stiffness_matrix(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001) -> np.ndarray| np.ndarray| np.ndarray:
     """
     M,r,x = generate_stiffness_matrix(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001)
 
@@ -29,9 +29,9 @@ def generate_stiffness_matrix(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.0
     * F = force aplied (SI units)
 
     # Outputs
-    * M = stiffness matrix for a FEM-Galerkin Method 
-    * r = associated solution for this 
-    * x = x-axis spacings
+    * M = stiffness matrix for a FEM-Galerkin Method (n by n numpy array)
+    * r = associated solution for M (1 by n numpy array)
+    * x = x-axis spacings (1 by n numpy array)
 
     # Conditions 
     * No Slip boundary Condition
@@ -69,9 +69,9 @@ def generate_stiffness_matrix(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.0
 #Thomas Algorithim for CPU
 ###########################################################################
 
-def thomas_cpu(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001):
+def thomas_cpu(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001)-> np.ndarray| np.ndarray:
     """
-    vx,x = generate_stiffness_matrix(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001)
+    vx,x = thomas_cpu(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001)
 
     # Explanation
     This solves for finite flow in an infintessimal channel using FEA-Gerlikin and 
@@ -84,8 +84,8 @@ def thomas_cpu(half_n:int,eta:float = 1*pow(10,-5),F:float = -0.001):
     * F = force aplied (SI units)
 
     # Outputs
-    * vx = velocity at each x 
-    * x = x-axis spacings
+    * vx = velocity at each x (1 by n numpy array)
+    * x = x-axis spacings (1 by n numpy array)
     """
     #Index solutions for alpha and beta so matrix creation is no longer necessary.
     #Included as subfunctions so the GPU optimization remains unaffected
