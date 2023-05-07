@@ -226,15 +226,14 @@ def thomas_gpu(
 
 
 if __name__ == "__main__":
-    half_n = 500
+    half_n = 5000
 
     ################################################################################
     # Gauss Row Elimination
     ################################################################################
-    M, r, x = generate_stiffness_matrix(half_n)
-    start = time.time()
-    vx1 = gauss_elimination(M, r)
-    print("Gauss", time.time() - start)
+    #start = time.time()
+    #vx1 = gauss_elimination(M, r)
+    #print("Gauss", time.time() - start)
 
     ################################################################################
     # CPU Thomas
@@ -255,7 +254,7 @@ if __name__ == "__main__":
 
     # Verifying all methods are equivelent
     # Has to be is close becasue gauss elimination acrues more errors
-    if np.allclose(vx1, vx2) and np.allclose(vx2, vx3):
+    if np.allclose(vx2, vx3):
         print("All methods are equal")
 
     print(
@@ -263,12 +262,12 @@ if __name__ == "__main__":
     )
     max_time = 10
     time_test_n = 20  # number of tests per n for an average
-    half_n_range = np.arange(10, pow(10,3))
+    half_n_range = np.arange(10, pow(10,5))
 
     ################################################################################
     # Gauss Running time and memory tests
     ################################################################################
-    if True:
+    if False:
         print("Begining Gauss Row Elimination Time Tests")
         gauss_times = np.zeros([len(half_n_range), time_test_n])
 
@@ -285,27 +284,28 @@ if __name__ == "__main__":
     ################################################################################
     # CPU Running time and memory tests
     ################################################################################
-    if True:
+    if False:
 
         print("\nBegining Thomas CPU Time Tests")
         cpu_times = np.zeros([len(half_n_range), time_test_n])
 
         for ind_n, half_n in enumerate(half_n_range):
-            for i in range(time_test_n):
-                start = time.time()
-                x, vx = thomas_cpu(half_n)
-                end = time.time()
-                cpu_times[ind_n, i] = start - end
-                sys.stdout.write(
-                    "\r" + str(ind_n) + " of " + str(len(half_n_range) - 1)
-                )
+            start = time.time()
 
+            for i in range(time_test_n):
+                x, vx = thomas_cpu(half_n)
+                
+            
+            end = time.time()
+            sys.stdout.write("\r" + str(ind_n) + " of " + str(len(half_n_range) - 1) +" Last one took:"+ str(end-start))
+
+            cpu_times[ind_n, i] = (end-start)/time_test_n
         np.savetxt("ThomasCPUTimes.csv", cpu_times, delimiter=",")
 
     ################################################################################
     # GPU Running time and memory tests
     ################################################################################
-    if True:
+    if False:
         print("\nBegining Thomas GPU Time Tests")
         gpu_times = np.zeros([len(half_n_range), time_test_n])
 
@@ -314,7 +314,7 @@ if __name__ == "__main__":
                 start = time.time()
                 x, vx = thomas_gpu(half_n)
                 end = time.time()
-                gpu_times[ind_n, i] = start - end
+                gpu_times[ind_n, i] = end - start
                 sys.stdout.write(
                     "\r" + str(ind_n) + " of " + str(len(half_n_range) - 1)
                 )

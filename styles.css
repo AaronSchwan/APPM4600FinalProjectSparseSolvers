@@ -1,0 +1,129 @@
+
+:root{
+    --darks: rgb(22, 39, 53);
+    --bg: rgb(38, 69, 94);
+    --fg:  rgb(241, 249, 255);
+    box-sizing: border-box;
+
+}
+
+
+
+  
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: var(--fg);
+    color: var(--darks);
+    counter-reset: figure-caption;
+    counter-reset: formula-caption;
+
+
+  }
+  
+  /* Style the side navigation */
+  .sidenav {
+    height: 100%;
+    width: 200px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: var(--bg);
+    overflow-x: hidden;
+  }
+  
+
+
+  h1 {
+    text-align: center;
+  }
+  h2 {
+    text-align: center;
+  }
+  
+  h3 {
+    text-align: center;
+  }
+
+  p {
+    text-indent: 50px;
+  }
+
+
+  /* Side navigation links */
+  .sidenav a {
+    color: var(--fg);
+    padding: 16px;
+    text-decoration: none;
+    display: block;
+  }
+  
+  /* Change color on hover */
+  .sidenav a:hover {
+    background-color: #ddd;
+    color: #111;
+  }
+  
+  /* Style the content */
+  .content {
+    margin-left: 200px;
+    padding-left: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .sidenav {
+        display: none;
+
+    }
+    .content{
+        margin-left: 10px;
+    }
+}
+
+
+  .formula-caption {                             
+    font-size:small;
+    text-align: center;
+    counter-increment: formula-caption;
+    padding-top:10px;
+    padding-bottom: 20px;
+    font-family: "Gill Sans Extrabold", sans-serif;
+  
+  }
+  .formula-caption:before {
+    content: "Eqn. " counter(form-caption) ": "; /* Apply counter before children's content. */
+  }
+  
+   
+  .figure-caption {                             
+    font-size:small;
+    text-align: center;
+    counter-increment: figure-caption 1;
+    padding:10px;
+    padding-bottom: 20px;
+    font-family: "Gill Sans Extrabold", sans-serif;
+  
+  
+  }
+  .figure-caption:before {
+    content: "Fig. " counter(figure-caption) ": "; /* Apply counter before children's content. */
+  }
+
+
+  code {
+    font-family: MyFancyCustomFont, monospace;
+    font-size: inherit;
+    align-items: center;
+  }
+
+  pre code {
+    display: block;
+    background: none;
+    white-space: pre;
+    -webkit-overflow-scrolling: touch;
+    overflow-x: scroll;
+    max-width: 100%;
+    min-width: 100px;
+    padding: 0;
+  }
