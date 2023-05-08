@@ -15,8 +15,7 @@
     font-family: Arial, Helvetica, sans-serif;
     background-color: var(--fg);
     color: var(--darks);
-    counter-reset: figure-caption;
-    counter-reset: formula-caption;
+    counter-reset: figurecaption formulacaption;
 
 
   }
@@ -82,32 +81,32 @@
 }
 
 
-  .formula-caption {                             
+  .formulacaption {                             
     font-size:small;
     text-align: center;
-    counter-increment: formula-caption;
+    counter-increment: formulacaption;
     padding-top:10px;
     padding-bottom: 20px;
     font-family: "Gill Sans Extrabold", sans-serif;
   
   }
-  .formula-caption:before {
-    content: "Eqn. " counter(form-caption) ": "; /* Apply counter before children's content. */
+  .formulacaption:before {
+    content: "Eqn. " counter(formulacaption) ": "; /* Apply counter before children's content. */
   }
   
    
-  .figure-caption {                             
+  .figurecaption {                             
     font-size:small;
     text-align: center;
-    counter-increment: figure-caption 1;
+    counter-increment: figurecaption 1;
     padding:10px;
     padding-bottom: 20px;
     font-family: "Gill Sans Extrabold", sans-serif;
   
   
   }
-  .figure-caption:before {
-    content: "Fig. " counter(figure-caption) ": "; /* Apply counter before children's content. */
+  .figurecaption:before {
+    content: "Fig. " counter(figurecaption) ": "; /* Apply counter before children's content. */
   }
 
 
