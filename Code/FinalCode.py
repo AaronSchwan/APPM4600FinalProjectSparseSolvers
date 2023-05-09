@@ -224,16 +224,53 @@ def thomas_gpu(
     # Returning vx and x
     return vx * r0, x
 
+def thomas_algorithm(M, r):
+    """
+    Standard Thomas algorithm that is valid for use on the CPU
+    This is version 2 which takes in a full matrix and has the goal of making
+    a memory-efficient version.
+    """
+    # Getting iteration constant
+    n = len(r)
 
+    # Allocating memory for solution vector
+    x = np.zeros(n)
+
+    # Priming solution
+    r[0] = r[0] / M[0, 0]
+    M[0, 1] = M[0, 1] / M[0, 0]
+
+    # Forward substitution on matrix
+    for i in range(1, n - 1):
+        r[i] = (r[i] - M[i, i - 1] * r[i - 1]) / (M[i, i] - M[i, i - 1] * M[i - 1, i])
+        M[i, i + 1] = M[i, i + 1] / (M[i, i] - M[i, i - 1] * M[i - 1, i])
+
+    # final step in forward substitutions
+    r[n - 1] = (r[n - 1] - M[n - 1, n - 2] * r[n - 2]) / (
+        M[n - 1, n - 1] - M[n - 1, n - 2] * M[n - 2, n - 1]
+    )
+
+    # First step in backward substitution
+    x[n - 1] = r[n - 1]
+
+    # Backward substitution to solve
+    for i in reversed(range(n - 1)):
+        x[i] = r[i] - M[i, i + 1] * x[i + 1]
+
+    return x
 if __name__ == "__main__":
-    half_n = 5000
+    half_n = 5
 
     ################################################################################
     # Gauss Row Elimination
     ################################################################################
-    #start = time.time()
-    #vx1 = gauss_elimination(M, r)
-    #print("Gauss", time.time() - start)
+    M, r, x = generate_stiffness_matrix(half_n)
+    start = time.time()
+    vx1 = gauss_elimination(M, r)
+    print("Gauss", time.time() - start)
+
+    vx4 = thomas_algorithm(M, r)
+    print("Thomas",vx4)
 
     ################################################################################
     # CPU Thomas
@@ -262,7 +299,7 @@ if __name__ == "__main__":
     )
     max_time = 10
     time_test_n = 20  # number of tests per n for an average
-    half_n_range = np.arange(10, pow(10,5))
+    half_n_range = np.arange(10, pow(10,3))
 
     ################################################################################
     # Gauss Running time and memory tests
@@ -280,6 +317,22 @@ if __name__ == "__main__":
                 gauss_times[ind_n, i] = end-start        
             sys.stdout.write("\r" + str(ind_n) + " of " + str(len(half_n_range) - 1) +" Last one took:"+ str(end-start))
         np.savetxt("GaussTimes.csv", gauss_times, delimiter=",")
+    ################################################################################
+    # Gauss Running time and memory tests
+    ################################################################################
+    if True:
+        print("Begining Gauss Row Elimination Time Tests")
+        Thomas = np.zeros([len(half_n_range), time_test_n])
+
+        for ind_n, half_n in enumerate(half_n_range):
+            for i in range(time_test_n):
+                M, r, x = generate_stiffness_matrix(half_n)
+                start = time.time()
+                vx1 = thomas_algorithm(M, r)
+                end = time.time()
+                Thomas[ind_n, i] = end-start        
+            sys.stdout.write("\r" + str(ind_n) + " of " + str(len(half_n_range) - 1) +" Last one took:"+ str(end-start))
+        np.savetxt("Thomas.csv", Thomas, delimiter=",")
 
     ################################################################################
     # CPU Running time and memory tests

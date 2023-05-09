@@ -7,17 +7,21 @@ plt.style.use("ScientificPlots")
 # Numerical Time Plots
 #############################################################################
 if True:
-    gauss = np.loadtxt("GaussTimes.csv", delimiter=",", dtype=str).astype(float)
+    #gauss = np.loadtxt("GaussTimes.csv", delimiter=",", dtype=str).astype(float)
     cpu = np.loadtxt("ThomasCPUTimes.csv", delimiter=",", dtype=str).astype(float)
-    gpu = np.loadtxt("ThomasGPUTimes.csv", delimiter=",", dtype=str).astype(float)
+    #gpu = np.loadtxt("ThomasGPUTimes.csv", delimiter=",", dtype=str).astype(float)
+    thom = np.loadtxt("Thomas.csv", delimiter=",", dtype=str).astype(float)
+
     
     #plt.scatter(2*np.arange(10, pow(10,3)),np.mean(gpu,axis=1)[0:pow(10,3)-10],label="GPU",c="#ff3333")
-    plt.scatter(2*np.arange(10, pow(10,3)),np.mean(cpu,axis=1)[0:pow(10,3)-10],label="Thomas Algorithm",c="#3333ff")
-    plt.scatter(2*np.arange(10, pow(10,3)),np.mean(gauss,axis=1),label="Gaussian Row Elimination",c="#33cc33")
+    plt.scatter(2*np.arange(10, pow(10,3)),np.mean(cpu,axis=1)[0:pow(10,3)-10],label="Optimized",c="#3333ff")
+    plt.scatter(2*np.arange(10, pow(10,3)),np.mean(thom,axis=1)[0:pow(10,3)-10],label="Standard",c="#33ff33")
+    #plt.scatter(2*np.arange(10, pow(10,3)),np.mean(gauss,axis=1),label="Gaussian Row Elimination",c="#33cc33")
     plt.legend(loc='upper center',bbox_to_anchor=(0.5, -0.15), ncols=3)
     plt.xlabel("Matrix (n)")
     plt.ylabel("Average Time (s)")
     plt.show()
+    
     """
     plt.scatter(2*np.arange(10, pow(10,3)+10),np.max(gpu,axis=1)[0:pow(10,3)],label="GPU",c="#ff3333")
     plt.scatter(2*np.arange(10, pow(10,3)+10),np.max(cpu,axis=1)[0:pow(10,3)],label="CPU",c="#3333ff")
